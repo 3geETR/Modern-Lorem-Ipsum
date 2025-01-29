@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Lorem Generator</title>
+    <style>
+        :root {
+            --primary: #7c3aed;
+            --secondary: #a78bfa;
+            --background: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.8);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--background);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            background-image: linear-gradient(to bottom right, #1e293b, #0f172a);
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            margin-top: 2rem;
+        }
+
+        .generator-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: cardEntrance 0.8s ease-out;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        input, button {
+            padding: 0.8rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input {
+            width: 120px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        button {
+            background-image: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(124, 58, 237, 0.4);
+        }
+
+        .output {
+            line-height: 1.6;
+            margin-top: 2rem;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes cardEntrance {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            
+            .generator-card {
+                padding: 1.5rem;
+            }
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--card-bg);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .toast.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast::before {
+            content: '✓';
+            color: #4ade80;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="generator-card">
+            <h1>Modern<span style="color: var(--secondary)">Lorem</span></h1>
+            <div class="controls">
+                <input type="number" id="paragraphCount" value="5" min="1" max="20">
+                <button onclick="generateLorem()">Oluştur</button>
+                <button onclick="toggleSpecialChars()">Özel Karakterler</button>
+                <button onclick="copyText()" class="copy-btn">Kopyala</button>
+            </div>
+            <div class="output" id="output"></div>
+        </div>
+    </div>
+    
+    <!-- Toast bildirim -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const loremWords = ["ad", "voluptate", "esse", "quis", "nisi", "aliqua", "nostrud", 
+                          "exercitation", "ullamco", "laboris", "nisi", "ut", "aliquip", 
+                          "commodo", "consequat", "duis", "aute", "irure", "dolor", "in"];
+
+        const specialChars = ["®", "©", "™", "•", "§", "¶", "†", "‡", "–", "—"];
+
+        function generateSentence(wordCount) {
+            let sentence = '';
+            const includeSpecialChar = document.querySelector('.special-chars-active');
+            
+            for(let i = 0; i < wordCount; i++) {
+                sentence += loremWords[Math.floor(Math.random() * loremWords.length)];
+                if(i !== wordCount - 1) sentence += ' ';
+                
+                if(includeSpecialChar && Math.random() < 0.2) {
+                    sentence += specialChars[Math.floor(Math.random() * specialChars.length)] + ' ';
+                }
+            }
+            return sentence.charAt(0).toUpperCase() + sentence.slice(1) + '.';
+        }
+
+        function generateParagraph() {
+            const paragraph = [];
+            const sentenceCount = 3 + Math.floor(Math.random() * 3);
+            
+            for(let i = 0; i < sentenceCount; i++) {
+                paragraph.push(generateSentence(5 + Math.floor(Math.random() * 10)));
+            }
+            return paragraph.join(' ');
+        }
+
+        function generateLorem() {
+            const count = document.getElementById('paragraphCount').value;
+            const output = document.getElementById('output');
+            output.innerHTML = '';
+            
+            for(let i = 0; i < count; i++) {
+                const p = document.createElement('p');
+                p.textContent = generateParagraph();
+                p.style.marginBottom = '1.5rem';
+                p.style.opacity = '0.9';
+                output.appendChild(p);
+            }
+        }
+
+        function toggleSpecialChars() {
+            document.body.classList.toggle('special-chars-active');
+        }
+
+        function copyText() {
+            const text = document.getElementById('output').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Metin panoya kopyalandı!');
+            });
+        }
+
+        // Sayfa yüklendiğinde otomatik üret
+        window.onload = generateLorem;
+
+        function showToast(message, duration = 3000) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('visible');
+            
+            setTimeout(() => {
+                toast.classList.remove('visible');
+            }, duration);
+        }
+
+        function copyText() {
+            const text = document.getElementById('output').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Metin panoya kopyalandı!');
+            }).catch(err => {
+                showToast('Kopyalama başarısız!', 4000);
+            });
+        }
+    </script>
+</body>
+</html>
